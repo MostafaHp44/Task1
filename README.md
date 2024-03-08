@@ -2,6 +2,12 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# Getting Started To Run  App
+
+go to "E:\Task1\taskone\src\Form/form.js"
+
+and put  the secret Key tou run and get data 
+
 ## Available Scripts
 
 In the project directory, you can run:
