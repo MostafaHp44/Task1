@@ -1,20 +1,27 @@
-// components/Dropdown.jsx
-import React from 'react';
-import Select from 'react-select';
+import '../App.css'
 
-const Dropdown = ({ label, options, value, onChange, isLoading }) => {
+function Drop({ label, options, value, onChange, index}) {
+
   return (
-    <div>
-      <label>{label}</label>
-      <Select
-        options={options}
-        value={value}
-        onChange={onChange}
-        isSearchable
-        isLoading={isLoading}
-      />
-    </div>
-  );
-};
+  <div className='MainDrop'>
 
-export default Dropdown;
+ 
+  <label className='MainLabel' >{label} : </label>
+
+<select onChange={onChange} value={value}>
+  
+  <option>Select ..</option>
+  {options.map((item ,index)=>(
+      <option key={index} value={item} >{item}</option>
+
+  ))}
+  
+</select>
+      <p className='Selected'>{`You selected  :  ${value}`} </p>
+
+
+  </div>
+  );
+}
+
+export default Drop;

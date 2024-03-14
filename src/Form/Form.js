@@ -1,96 +1,154 @@
-// components/FormComponent.jsx
 import React, { useState, useEffect } from 'react';
-import Dropdown from './Dropdown';
 import PropertyDropdown from './PropertyDropdown';
 import axios from 'axios';
+import '../App.css'
+import Drop from './Dropdown';
 
 const FormComponent = () => {
+
+  const apiKey ='3%o8i}_;3D4bF]G5@22r2)Et1&mLJ4?$@+16';
+  
   const [mainCategories, setMainCategories] = useState([]);
-  const [mainCategory, setMainCategory] = useState(null);
+  const [mainCategory, setMainCategory] = useState("");
   const [subcategories, setSubcategories] = useState([]);
-  const [subcategory, setSubcategory] = useState(null);
+  const [subcategory, setSubcategory] = useState("");
   const [properties, setProperties] = useState([]);
-  const [selectedProperties, setSelectedProperties] = useState({});
   const [loading, setLoading] = useState(true);
-  const apiKey = process.env.API_KEY;
+  const [subprop,setsubprop]=useState("")
 
 
   useEffect(() => {
     // Fetch main categories
     axios.get('https://staging.mazaady.com/api/v1/get_all_cats', {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-        },
+      headers: {
+        'private-key': apiKey,
+      },
       })
       .then(response => {
-        setMainCategories(response.data);
+        setMainCategories(response.data.data.categories);
         setLoading(false);
       })
       .catch(error => console.error('Error fetching main categories:', error));
   }, []);
 
-  const handleMainCategoryChange = (selectedCategory) => {
-    setMainCategory(selectedCategory);
 
-    // Fetch subcategories based on the selected main category
-    axios.get(`https://staging.mazaady.com/api/v1/properties?cat=${selectedCategory.id}`)
-      .then(response => setSubcategories(response.data))
-      .catch(error => console.error('Error fetching subcategories:', error));
-  };
+  
 
-  const handleSubcategoryChange = (selectedSubcategory) => {
-    setSubcategory(selectedSubcategory);
+  const handleMainCategoryChange = (e) => {
+
+     
+    setMainCategory(e.target.value);
+
+
+    axios.get(`https://staging.mazaady.com/api/v1/properties?cat=13(${e.target.value})`, {
+      headers: {
+        'private-key': apiKey,
+      },
+      })
+      .then(response => {
+
+        setSubcategories(response.data.data);
+        setLoading(false);
+      })
+      .catch(error => console.error('Error fetching main categories:', error));
+
+   
+  }
+
+  const handleSubcategoryChange = (e) => {
+
+   let subcat=e.target.value
+
+    setSubcategory(subcat);
+
 
     // Fetch properties based on the selected subcategory
-    axios.get(`https://staging.mazaady.com/api/v1/get-options-child/${selectedSubcategory.id}`)
-      .then(response => setProperties(response.data))
-      .catch(error => console.error('Error fetching properties:', error));
+    axios.get(`https://staging.mazaady.com/api/v1/properties?cat=13${subcat}`,{
+      headers: {
+        'private-key': apiKey,
+      },
+    })
+    .then(response => {
+
+      let NewData=response.data.data.find(cat=>(cat.name===subcat))
+      let DataOptions=NewData.options
+      setProperties(DataOptions);
+      
+    })
+    .catch(error => console.error('Error fetching main categories:', error));
+
+
+      
+
+     
   };
 
-  const handlePropertyChange = (selectedProperty) => {
-    // Handle logic for appending "other" and fetching child properties
-    // ...
-
-    setSelectedProperties(prevState => ({
-      ...prevState,
-      [selectedProperty.id]: selectedProperty,
-    }));
+  
+  const handleprop = (e) => {
+    setsubprop(e.target.value);
   };
 
-  const handleSubmit = () => {
-    // Logic to submit selected values
-    console.log('Selected Properties:', selectedProperties);
-  };
 
   return (
-    <div>
-      <Dropdown
-        label="Main Category"
-        options={mainCategories}
-        value={mainCategory}
-        onChange={handleMainCategoryChange}
-        isLoading={loading}
-      />
 
-      {mainCategory && (
-        <Dropdown
+    <div className='MainFrom'>
+
+
+      <Drop 
+        label="Main Category"
+        options={mainCategories.map((cat)=>(cat.name))}
+        value={mainCategory}
+        onChange ={handleMainCategoryChange}
+        isLoading={loading}
+        index={mainCategories.map((cat)=>(cat.id))}
+        />
+
+
+
+      {
+      mainCategory 
+      ? 
+        <Drop
           label="Subcategory"
-          options={subcategories}
+          options={subcategories.map((cat)=>(cat.name))}
           value={subcategory}
           onChange={handleSubcategoryChange}
           isLoading={loading}
+          
         />
-      )}
+      :
+        <></>
+      }
 
-      {subcategory && (
+
+
+
+      {subcategory 
+      ?
         <PropertyDropdown
-          label={`Properties for ${subcategory.name}`}
+          label={`Properties for ${subcategory} : `}
           options={properties}
-          onChange={handlePropertyChange}
+          onChange={handleprop}
+          value={subprop}
+          
+          
         />
-      )}
+      :
+      <></>  
+}
 
-      <button onClick={handleSubmit}>Submit</button>
+
+    
+      
+
+
+
+    
+
+
+
+
+
     </div>
   );
 };
